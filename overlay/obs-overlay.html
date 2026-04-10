@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamTitles — Overlay</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: transparent;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      transition: all 0.3s ease;
+    }
+
+    /* Position: overlay covers full viewport, flexbox aligns content */
+    #overlay.pos-top-left       { justify-content: flex-start; align-items: flex-start; }
+    #overlay.pos-top-center     { justify-content: flex-start; align-items: center; }
+    #overlay.pos-top-right      { justify-content: flex-start; align-items: flex-end; }
+    #overlay.pos-mid-left       { justify-content: center; align-items: flex-start; }
+    #overlay.pos-center         { justify-content: center; align-items: center; }
+    #overlay.pos-mid-right      { justify-content: center; align-items: flex-end; }
+    #overlay.pos-bottom-left    { justify-content: flex-end; align-items: flex-start; }
+    #overlay.pos-bottom-center  { justify-content: flex-end; align-items: center; }
+    #overlay.pos-bottom-right   { justify-content: flex-end; align-items: flex-end; }
+
+    .title-block {
+      animation: slideIn 0.15s ease-out;
+      margin-bottom: 6px;
+      width: fit-content;
+      max-width: 80vw;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .title-line {
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 18px;
+      line-height: 1.4;
+      white-space: normal;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      hyphens: auto;
+      background: rgba(0, 90, 220, 0.75);
+      color: #ffffff;
+    }
+
+    .empty {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.15);
+      font-size: 13px;
+      padding: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div id="overlay" class="pos-bottom-center">
+    <div class="empty" id="empty-text">Ожидание...</div>
+  </div>
+
+  <script>
+    const overlay = document.getElementById('overlay');
+    const emptyText = document.getElementById('empty-text');
+
+    let titles = [];
+    let currentBlock = null;
+
+    let currentSettings = {
+      fontSize: 18,
+      fontWeight: 400,
+      fontFamily: 'Segoe UI, sans-serif',
+      textColor: '#ffffff',
+      bgColor: '#005adc',
+      bgOpacity: 75,
+      bgRadius: 6,
+      position: 'bottom-center',
+      posPadding: 16,
+      fadeDelay: 5,
+      maxLines: 3,
+    };
+
+    let ws;
+    function connect() {
+      ws = new WebSocket('ws://localhost:7890/overlay-ws');
+      ws.onopen = () => console.log('Connected to overlay server');
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'style') applyStyle(data.settings);
+          else handleTitle(data);
+        } catch (e) {}
+      };
+      ws.onclose = () => setTimeout(connect, 3000);
+      ws.onerror = () => {};
+    }
+    connect();
+
+    function applyStyle(s) {
+      currentSettings = { ...currentSettings, ...s };
+      const cs = currentSettings;
+
+      overlay.className = 'pos-' + cs.position;
+      overlay.style.padding = cs.posPadding + 'px';
+      overlay.style.fontFamily = cs.fontFamily;
+      overlay.style.fontSize = cs.fontSize + 'px';
+      overlay.style.fontWeight = cs.fontWeight;
+
+      document.querySelectorAll('.title-line').forEach(el => {
+        el.style.fontSize = cs.fontSize + 'px';
+        el.style.fontWeight = cs.fontWeight;
+        el.style.fontFamily = cs.fontFamily;
+        el.style.color = cs.textColor;
+        el.style.borderRadius = cs.bgRadius + 'px';
+        const alpha = cs.bgOpacity / 100;
+        el.style.background = hexToRgba(cs.bgColor, alpha);
+      });
+    }
+
+    function hexToRgba(hex, alpha) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    function handleTitle(data) {
+      const { original, translated, isInterim } = data;
+      const cs = currentSettings;
+
+      if (emptyText) emptyText.style.display = 'none';
+
+      if (isInterim) {
+        if (!currentBlock) currentBlock = createBlock();
+        currentBlock.querySelector('.title-line').textContent = '...';
+        return;
+      }
+
+      if (currentBlock) {
+        currentBlock.querySelector('.title-line').textContent = translated;
+        currentBlock.dataset.timestamp = Date.now();
+        titles.push(currentBlock);
+        currentBlock = null;
+      } else {
+        const block = createBlock();
+        block.querySelector('.title-line').textContent = translated;
+        titles.push(block);
+      }
+
+      while (titles.length > cs.maxLines) {
+        const old = titles.shift();
+        old.style.transition = 'opacity 0.3s';
+        old.style.opacity = '0';
+        setTimeout(() => { if (old.parentNode) old.remove(); }, 300);
+      }
+    }
+
+    function createBlock() {
+      const div = document.createElement('div');
+      div.className = 'title-block';
+      const cs = currentSettings;
+      const alpha = cs.bgOpacity / 100;
+
+      const line = document.createElement('div');
+      line.className = 'title-line';
+      line.style.fontSize = cs.fontSize + 'px';
+      line.style.fontWeight = cs.fontWeight;
+      line.style.fontFamily = cs.fontFamily;
+      line.style.color = cs.textColor;
+      line.style.borderRadius = cs.bgRadius + 'px';
+      line.style.background = hexToRgba(cs.bgColor, alpha);
+
+      div.appendChild(line);
+      overlay.appendChild(div);
+      return div;
+    }
+
+    setInterval(() => {
+      const cs = currentSettings;
+      titles = titles.filter((t) => {
+        const ts = parseInt(t.dataset.timestamp) || 0;
+        if (Date.now() - ts > cs.fadeDelay * 1000) {
+          t.style.transition = 'opacity 0.5s';
+          t.style.opacity = '0';
+          setTimeout(() => { if (t.parentNode) t.remove(); }, 500);
+          return false;
+        }
+        return true;
+      });
+    }, 1000);
+  </script>
+</body>
+</html>

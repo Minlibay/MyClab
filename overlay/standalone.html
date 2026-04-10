@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamTitles — Control Panel</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+      padding-bottom: 40px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      color: #94a3b8;
+      font-size: 0.85rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: #1e293b;
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .tab:hover { color: #f1f5f9; }
+    .tab.active { background: #3b82f6; color: #fff; }
+
+    .section {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .section h2 {
+      font-size: 0.8rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .lang-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .lang-row select {
+      flex: 1;
+      padding: 8px 10px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #f1f5f9;
+      font-size: 0.9rem;
+    }
+
+    .lang-row select:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .lang-row .arrow {
+      color: #64748b;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-group label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+    }
+
+    .form-group label span.value {
+      color: #64748b;
+      font-size: 0.8rem;
+    }
+
+    .form-group input[type="range"] {
+      width: 100%;
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #334155;
+      border-radius: 3px;
+      outline: none;
+    }
+
+    .form-group input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #3b82f6;
+      cursor: pointer;
+    }
+
+    .form-group input[type="color"] {
+      width: 40px;
+      height: 32px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: transparent;
+      padding: 0;
+    }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .color-row input[type="color"] {
+      flex-shrink: 0;
+    }
+
+    .color-row span {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      font-family: monospace;
+    }
+
+    .form-group select {
+      width: 100%;
+      padding: 8px 10px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #f1f5f9;
+      font-size: 0.9rem;
+    }
+
+    .form-group select:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .position-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      max-width: 120px;
+    }
+
+    .pos-btn {
+      padding: 8px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #94a3b8;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.15s;
+    }
+
+    .pos-btn:hover { border-color: #3b82f6; }
+    .pos-btn.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: #0f172a;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #475569;
+      transition: background 0.3s;
+    }
+
+    .status-dot.active {
+      background: #22c55e;
+      animation: pulse 1.5s infinite;
+    }
+
+    .status-dot.error { background: #ef4444; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .status-text {
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn.start { background: #22c55e; color: #fff; }
+    .btn.start:hover { background: #16a34a; }
+    .btn.stop { background: #ef4444; color: #fff; }
+    .btn.stop:hover { background: #dc2626; }
+
+    .preview {
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 80px;
+    }
+
+    .preview-line {
+      margin-bottom: 4px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .preview-line.original { color: #94a3b8; }
+    .preview-line.translated { color: #3b82f6; }
+    .preview-line.empty { color: #334155; }
+
+    .error-text {
+      color: #ef4444;
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+    }
+
+    .info {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    .info code {
+      background: rgba(59, 130, 246, 0.2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #60a5fa;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .hidden { display: none; }
+
+    .reset-btn {
+      background: transparent;
+      border: 1px solid #334155;
+      color: #64748b;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .reset-btn:hover {
+      border-color: #64748b;
+      color: #94a3b8;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-header h2 {
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>StreamTitles</h1>
+      <p>Распознавание речи и перевод в реальном времени</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="main">🎙 Распознавание</button>
+      <button class="tab" data-tab="visual">🎨 Визуал</button>
+      <button class="tab" data-tab="api">🌐 Перевод</button>
+    </div>
+
+    <!-- TAB: Main -->
+    <div class="tab-content active" id="tab-main">
+      <div class="section">
+        <h2>Языки</h2>
+        <div class="lang-row">
+          <select id="source-lang">
+            <option value="ru-RU">🇷🇺 Русский</option>
+            <option value="en-US">🇺🇸 English</option>
+            <option value="uk-UA">🇺🇦 Українська</option>
+            <option value="de-DE">🇩🇪 Deutsch</option>
+            <option value="fr-FR">🇫🇷 Français</option>
+            <option value="es-ES">🇪🇸 Español</option>
+            <option value="ja-JP">🇯🇵 日本語</option>
+            <option value="ko-KR">🇰🇷 한국어</option>
+            <option value="zh-CN">🇨🇳 中文</option>
+          </select>
+          <span class="arrow">→</span>
+          <select id="target-lang">
+            <option value="en-US">🇺🇸 English</option>
+            <option value="ru-RU">🇷🇺 Русский</option>
+            <option value="uk-UA">🇺🇦 Українська</option>
+            <option value="de-DE">🇩🇪 Deutsch</option>
+            <option value="fr-FR">🇫🇷 Français</option>
+            <option value="es-ES">🇪🇸 Español</option>
+            <option value="ja-JP">🇯🇵 日本語</option>
+            <option value="ko-KR">🇰🇷 한국어</option>
+            <option value="zh-CN">🇨🇳 中文</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>Статус</h2>
+        </div>
+        <div class="status" style="margin-top:12px;">
+          <div class="status-dot" id="status-dot"></div>
+          <span class="status-text" id="status-text">Готов к запуску</span>
+        </div>
+        <div id="obs-status" style="margin-top:8px;font-size:0.8rem;">
+          <span style="color:#64748b;">○ OBS не подключён</span>
+        </div>
+        <div id="error-area"></div>
+        <button class="btn start" id="start-btn">▶ Запустить</button>
+      </div>
+
+      <div class="section">
+        <h2>Предпросмотр</h2>
+        <div class="preview" id="preview">
+          <div class="preview-line empty">Титры появятся здесь...</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="info">
+          <strong>Добавить в OBS:</strong><br>
+          Источник → <code>+</code> → Браузер<br>
+          URL: <code>http://localhost:7890/overlay</code><br>
+          Ширина <code>1280</code>, Высота <code>200</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Visual -->
+    <div class="tab-content" id="tab-visual">
+      <div class="section">
+        <div class="section-header">
+          <h2>Шрифт</h2>
+          <button class="reset-btn" id="reset-font">Сброс</button>
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label>Размер текста <span class="value" id="font-size-val">18px</span></label>
+          <input type="range" id="font-size" min="12" max="36" value="18" step="1">
+        </div>
+        <div class="form-group">
+          <label>Жирность <span class="value" id="font-weight-val">Нормальная</span></label>
+          <input type="range" id="font-weight" min="300" max="700" value="400" step="100">
+        </div>
+        <div class="form-group">
+          <label>Шрифт</label>
+          <select id="font-family">
+            <option value="Segoe UI, sans-serif">Segoe UI</option>
+            <option value="Arial, sans-serif">Arial</option>
+            <option value="Roboto, sans-serif">Roboto</option>
+            <option value="Verdana, sans-serif">Verdana</option>
+            <option value="Trebuchet MS, sans-serif">Trebuchet MS</option>
+            <option value="Georgia, serif">Georgia</option>
+            <option value="Impact, sans-serif">Impact</option>
+            <option value="Courier New, monospace">Courier New</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>Цвет текста</h2>
+          <button class="reset-btn" id="reset-color">Сброс</button>
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label>Цвет текста</label>
+          <div class="color-row">
+            <input type="color" id="text-color" value="#ffffff">
+            <span id="text-color-val">#ffffff</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>Фон титров</h2>
+          <button class="reset-btn" id="reset-bg">Сброс</button>
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label>Цвет фона</label>
+          <div class="color-row">
+            <input type="color" id="bg-color" value="#005adc">
+            <span id="bg-color-val">#005adc</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Прозрачность фона <span class="value" id="bg-opacity-val">75%</span></label>
+          <input type="range" id="bg-opacity" min="0" max="100" value="75" step="5">
+        </div>
+        <div class="form-group">
+          <label>Скругление углов <span class="value" id="bg-radius-val">6px</span></label>
+          <input type="range" id="bg-radius" min="0" max="20" value="6" step="1">
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>Позиция</h2>
+          <button class="reset-btn" id="reset-pos">Сброс</button>
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label>Расположение</label>
+          <div class="position-grid" id="position-grid">
+            <button class="pos-btn" data-pos="top-left">↖</button>
+            <button class="pos-btn" data-pos="top-center">↑</button>
+            <button class="pos-btn" data-pos="top-right">↗</button>
+            <button class="pos-btn" data-pos="mid-left">←</button>
+            <button class="pos-btn" data-pos="center">·</button>
+            <button class="pos-btn" data-pos="mid-right">→</button>
+            <button class="pos-btn" data-pos="bottom-left">↙</button>
+            <button class="pos-btn active" data-pos="bottom-center">↓</button>
+            <button class="pos-btn" data-pos="bottom-right">↘</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Отступ от края <span class="value" id="pos-padding-val">16px</span></label>
+          <input type="range" id="pos-padding" min="0" max="60" value="16" step="2">
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>Анимация</h2>
+          <button class="reset-btn" id="reset-anim">Сброс</button>
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label>Время показа <span class="value" id="fade-delay-val">5с</span></label>
+          <input type="range" id="fade-delay" min="2" max="15" value="5" step="1">
+        </div>
+        <div class="form-group">
+          <label>Макс. строк <span class="value" id="max-lines-val">3</span></label>
+          <input type="range" id="max-lines" min="1" max="6" value="3" step="1">
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>Предпросмотр стиля</h2>
+        </div>
+        <div id="style-preview" style="margin-top:12px;">
+          <div style="background:rgba(0,90,220,0.75);color:#fff;padding:8px 14px;border-radius:6px;font-size:18px;display:inline-block;max-width:90%;">
+            Пример переведённого текста
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: API -->
+    <div class="tab-content" id="tab-api">
+      <div class="section">
+        <h2>Серверы перевода</h2>
+        <p style="font-size:0.8rem;color:#64748b;margin-bottom:12px;line-height:1.5;">
+          Приложение пробует серверы по очереди. Если первый не ответил — идёт ко второму.
+        </p>
+
+        <div style="background:#0f172a;border-radius:8px;padding:12px;margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:0.85rem;">1. libretranslate.de</span>
+            <span id="srv-1-status" style="font-size:0.75rem;color:#64748b;">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:0.85rem;">2. lt.vern.cc</span>
+            <span id="srv-2-status" style="font-size:0.75rem;color:#64748b;">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:0.85rem;">3. translate.argosopentech.com</span>
+            <span id="srv-3-status" style="font-size:0.75rem;color:#64748b;">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.85rem;">4. MyMemory (fallback)</span>
+            <span id="srv-4-status" style="font-size:0.75rem;color:#64748b;">—</span>
+          </div>
+        </div>
+
+        <button class="btn" style="background:#334155;color:#f1f5f9;" id="test-servers-btn">🧪 Проверить серверы</button>
+      </div>
+
+      <div class="section">
+        <h2>Свой LibreTranslate</h2>
+        <p style="font-size:0.8rem;color:#64748b;margin-bottom:12px;line-height:1.5;">
+          Запусти свой сервер через Docker — максимальная скорость и приватность.
+        </p>
+        <div style="background:#0f172a;border-radius:8px;padding:12px;font-family:monospace;font-size:0.75rem;color:#94a3b8;line-height:1.6;margin-bottom:12px;">
+          docker run -it --rm -p 5000:5000 \<br>
+          &nbsp;&nbsp;libretranslate/libretranslate
+        </div>
+        <div class="form-group">
+          <label>URL своего сервера</label>
+          <input type="text" id="custom-server-url" placeholder="http://localhost:5000/translate"
+            style="width:100%;padding:8px 10px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#f1f5f9;font-size:0.85rem;">
+        </div>
+        <button class="btn" style="background:#3b82f6;color:#fff;font-size:0.85rem;padding:8px;" id="save-custom-server">💾 Сохранить и проверить</button>
+      </div>
+
+      <div class="section">
+        <div class="info">
+          <strong>Рекомендация:</strong> Для стабильного перевода рекомендуем запустить свой LibreTranslate через Docker. Это бесплатно, без лимитов и работает мгновенно.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === TABS ===
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // === ELEMENTS ===
+    const sourceSelect = document.getElementById('source-lang');
+    const targetSelect = document.getElementById('target-lang');
+    const startBtn = document.getElementById('start-btn');
+    const statusDot = document.getElementById('status-dot');
+    const statusText = document.getElementById('status-text');
+    const errorArea = document.getElementById('error-area');
+    const preview = document.getElementById('preview');
+    const stylePreview = document.getElementById('style-preview');
+
+    // === SETTINGS ===
+    const defaultSettings = {
+      // Languages
+      sourceLang: 'ru-RU',
+      targetLang: 'en-US',
+      // Font
+      fontSize: 18,
+      fontWeight: 400,
+      fontFamily: 'Segoe UI, sans-serif',
+      textColor: '#ffffff',
+      // Background
+      bgColor: '#005adc',
+      bgOpacity: 75,
+      bgRadius: 6,
+      // Position
+      position: 'bottom-center',
+      posPadding: 16,
+      // Animation
+      fadeDelay: 5,
+      maxLines: 3,
+    };
+
+    let settings = { ...defaultSettings };
+
+    // Load settings
+    try {
+      const saved = localStorage.getItem('streamTitlesSettings');
+      if (saved) {
+        const s = JSON.parse(saved);
+        Object.assign(settings, s);
+      }
+    } catch (e) {}
+
+    // === VISUAL CONTROLS ===
+    const controls = {
+      fontSize: document.getElementById('font-size'),
+      fontWeight: document.getElementById('font-weight'),
+      fontFamily: document.getElementById('font-family'),
+      textColor: document.getElementById('text-color'),
+      bgColor: document.getElementById('bg-color'),
+      bgOpacity: document.getElementById('bg-opacity'),
+      bgRadius: document.getElementById('bg-radius'),
+      posPadding: document.getElementById('pos-padding'),
+      fadeDelay: document.getElementById('fade-delay'),
+      maxLines: document.getElementById('max-lines'),
+    };
+
+    const displays = {
+      fontSize: document.getElementById('font-size-val'),
+      fontWeight: document.getElementById('font-weight-val'),
+      fontFamily: null,
+      textColor: document.getElementById('text-color-val'),
+      bgColor: document.getElementById('bg-color-val'),
+      bgOpacity: document.getElementById('bg-opacity-val'),
+      bgRadius: document.getElementById('bg-radius-val'),
+      posPadding: document.getElementById('pos-padding-val'),
+      fadeDelay: document.getElementById('fade-delay-val'),
+      maxLines: document.getElementById('max-lines-val'),
+    };
+
+    function fontWeightLabel(v) {
+      if (v <= 300) return 'Тонкий';
+      if (v <= 400) return 'Нормальная';
+      if (v <= 500) return 'Средняя';
+      if (v <= 600) return 'Полужирная';
+      return 'Жирная';
+    }
+
+    // Set values from settings
+    controls.fontSize.value = settings.fontSize;
+    controls.fontWeight.value = settings.fontWeight;
+    controls.fontFamily.value = settings.fontFamily;
+    controls.textColor.value = settings.textColor;
+    controls.bgColor.value = settings.bgColor;
+    controls.bgOpacity.value = settings.bgOpacity;
+    controls.bgRadius.value = settings.bgRadius;
+    controls.posPadding.value = settings.posPadding;
+    controls.fadeDelay.value = settings.fadeDelay;
+    controls.maxLines.value = settings.maxLines;
+
+    // Position grid
+    document.querySelectorAll('.pos-btn').forEach(btn => {
+      if (btn.dataset.pos === settings.position) btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
+
+    // Source/target lang
+    sourceSelect.value = settings.sourceLang;
+    targetSelect.value = settings.targetLang;
+
+    // Update displays
+    function updateDisplays() {
+      displays.fontSize.textContent = controls.fontSize.value + 'px';
+      displays.fontWeight.textContent = fontWeightLabel(controls.fontWeight.value);
+      displays.textColor.textContent = controls.textColor.value;
+      displays.bgColor.textContent = controls.bgColor.value;
+      displays.bgOpacity.textContent = controls.bgOpacity.value + '%';
+      displays.bgRadius.textContent = controls.bgRadius.value + 'px';
+      displays.posPadding.textContent = controls.posPadding.value + 'px';
+      displays.fadeDelay.textContent = controls.fadeDelay.value + 'с';
+      displays.maxLines.textContent = controls.maxLines.value;
+    }
+
+    updateDisplays();
+
+    // Event listeners for all controls
+    function onSettingChange() {
+      settings.fontSize = parseInt(controls.fontSize.value);
+      settings.fontWeight = parseInt(controls.fontWeight.value);
+      settings.fontFamily = controls.fontFamily.value;
+      settings.textColor = controls.textColor.value;
+      settings.bgColor = controls.bgColor.value;
+      settings.bgOpacity = parseInt(controls.bgOpacity.value);
+      settings.bgRadius = parseInt(controls.bgRadius.value);
+      settings.posPadding = parseInt(controls.posPadding.value);
+      settings.fadeDelay = parseInt(controls.fadeDelay.value);
+      settings.maxLines = parseInt(controls.maxLines.value);
+      settings.sourceLang = sourceSelect.value;
+      settings.targetLang = targetSelect.value;
+
+      updateDisplays();
+      updateStylePreview();
+      saveSettings();
+      sendStyleToOverlay();
+    }
+
+    Object.values(controls).forEach(el => {
+      el.addEventListener('input', onSettingChange);
+    });
+
+    sourceSelect.addEventListener('change', () => {
+      settings.sourceLang = sourceSelect.value;
+      saveSettings();
+      sendStyleToOverlay();
+      if (isListening) { stopRecognition(); startRecognition(); }
+    });
+
+    targetSelect.addEventListener('change', () => {
+      settings.targetLang = targetSelect.value;
+      saveSettings();
+      sendStyleToOverlay();
+    });
+
+    // Position
+    document.querySelectorAll('.pos-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        settings.position = btn.dataset.pos;
+        saveSettings();
+        sendStyleToOverlay();
+      });
+    });
+
+    // Style preview
+    function updateStylePreview() {
+      const s = settings;
+      const bgAlpha = s.bgOpacity / 100;
+      stylePreview.innerHTML = `
+        <div style="
+          background: ${hexToRgba(s.bgColor, bgAlpha)};
+          color: ${s.textColor};
+          padding: 8px 14px;
+          border-radius: ${s.bgRadius}px;
+          font-size: ${s.fontSize}px;
+          font-weight: ${s.fontWeight};
+          font-family: ${s.fontFamily};
+          display: inline-block;
+          max-width: 90%;
+        ">Пример переведённого текста на несколько слов</div>
+      `;
+    }
+
+    function hexToRgba(hex, alpha) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    updateStylePreview();
+
+    // Reset buttons
+    document.getElementById('reset-font').addEventListener('click', () => {
+      ['fontSize', 'fontWeight', 'fontFamily'].forEach(k => {
+        controls[k].value = defaultSettings[k];
+      });
+      onSettingChange();
+    });
+
+    document.getElementById('reset-color').addEventListener('click', () => {
+      controls.textColor.value = defaultSettings.textColor;
+      onSettingChange();
+    });
+
+    document.getElementById('reset-bg').addEventListener('click', () => {
+      ['bgColor', 'bgOpacity', 'bgRadius'].forEach(k => {
+        controls[k].value = defaultSettings[k];
+      });
+      onSettingChange();
+    });
+
+    document.getElementById('reset-pos').addEventListener('click', () => {
+      controls.posPadding.value = defaultSettings.posPadding;
+      settings.position = defaultSettings.position;
+      document.querySelectorAll('.pos-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.pos === settings.position);
+      });
+      onSettingChange();
+    });
+
+    document.getElementById('reset-anim').addEventListener('click', () => {
+      ['fadeDelay', 'maxLines'].forEach(k => {
+        controls[k].value = defaultSettings[k];
+      });
+      onSettingChange();
+    });
+
+    // Save/load
+    function saveSettings() {
+      localStorage.setItem('streamTitlesSettings', JSON.stringify(settings));
+    }
+
+    // === WEBSOCKET ===
+    const ws = new WebSocket('ws://localhost:7890/panel');
+    let overlayCount = 0;
+
+    ws.onopen = () => console.log('Connected to overlay server');
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'system') {
+          overlayCount = msg.overlayCount;
+          updateOverlayStatus();
+        }
+      } catch (e) {}
+    };
+
+    ws.onerror = (e) => console.error('WS error:', e);
+    ws.onclose = () => {
+      overlayCount = 0;
+      updateOverlayStatus();
+    };
+
+    function updateOverlayStatus() {
+      const el = document.getElementById('obs-status');
+      if (el) {
+        if (overlayCount > 0) {
+          el.innerHTML = `<span style="color:#22c55e;">● OBS подключён (${overlayCount})</span>`;
+        } else {
+          el.innerHTML = `<span style="color:#64748b;">○ OBS не подключён</span>`;
+        }
+      }
+    }
+
+    function sendToOverlay(data) {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(data));
+      }
+    }
+
+    function sendStyleToOverlay() {
+      sendToOverlay({ type: 'style', settings: { ...settings } });
+      showStyleToast();
+    }
+
+    function showStyleToast() {
+      let toast = document.getElementById('style-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'style-toast';
+        toast.style.cssText = `
+          position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+          background: #22c55e; color: #fff; padding: 8px 16px; border-radius: 8px;
+          font-size: 0.85rem; font-weight: 500; z-index: 999; opacity: 0;
+          transition: opacity 0.2s; pointer-events: none;
+        `;
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ Стиль отправлен в OBS';
+      toast.style.opacity = '1';
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 1500);
+    }
+
+    // === SPEECH RECOGNITION ===
+    let recognition = null;
+    let isListening = false;
+    const cache = new Map();
+
+    async function translate(text) {
+      if (!text || text.length < 2) return text;
+      const src = settings.sourceLang.split('-')[0];
+      const tgt = settings.targetLang.split('-')[0];
+      if (src === tgt) return text;
+
+      const key = `${src}|${tgt}|${text.toLowerCase()}`;
+      if (cache.has(key)) return cache.get(key);
+
+      // Try LibreTranslate servers in order
+      const servers = [
+        'https://libretranslate.de/translate',
+        'https://lt.vern.cc/translate',
+        'https://translate.argosopentech.com/translate',
+      ];
+
+      for (const url of servers) {
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ q: text, source: src, target: tgt }),
+            signal: AbortSignal.timeout(3000)
+          });
+          const data = await res.json();
+          if (data.translatedText && data.translatedText !== text) {
+            cache.set(key, data.translatedText);
+            saveCache();
+            return data.translatedText;
+          }
+        } catch (e) {
+          continue; // Try next server
+        }
+      }
+
+      // Final fallback: MyMemory
+      try {
+        const res = await fetch(
+          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${src}|${tgt}`,
+          { signal: AbortSignal.timeout(3000) }
+        );
+        const data = await res.json();
+        const translated = data.responseData?.translatedText || text;
+        cache.set(key, translated);
+        saveCache();
+        return translated;
+      } catch (e) {
+        return text;
+      }
+    }
+
+    function saveCache() {
+      try {
+        const obj = Object.fromEntries(cache);
+        localStorage.setItem('translationCache', JSON.stringify(obj));
+      } catch (e) {}
+    }
+
+    // Load cache
+    try {
+      const saved = localStorage.getItem('translationCache');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        Object.keys(parsed).forEach(k => cache.set(k, parsed[k]));
+      }
+    } catch (e) {}
+
+    // === SERVER TESTING ===
+    const servers = [
+      { url: 'https://libretranslate.de/translate', el: 'srv-1-status' },
+      { url: 'https://lt.vern.cc/translate', el: 'srv-2-status' },
+      { url: 'https://translate.argosopentech.com/translate', el: 'srv-3-status' },
+      { url: 'https://api.mymemory.translated.net/get', el: 'srv-4-status' },
+    ];
+
+    // Custom server
+    let customServer = '';
+    try {
+      const cs = localStorage.getItem('customServer');
+      if (cs) {
+        customServer = JSON.parse(cs);
+        document.getElementById('custom-server-url').value = customServer;
+      }
+    } catch (e) {}
+
+    document.getElementById('save-custom-server').addEventListener('click', () => {
+      const url = document.getElementById('custom-server-url').value.trim();
+      if (url) {
+        customServer = url;
+        localStorage.setItem('customServer', JSON.stringify(url));
+        testServer(url, 'custom');
+      }
+    });
+
+    async function testServer(url, label) {
+      try {
+        const isMyMemory = url.includes('mymemory');
+        const body = isMyMemory
+          ? null
+          : JSON.stringify({ q: 'test', source: 'en', target: 'ru' });
+
+        const start = Date.now();
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: body,
+          signal: AbortSignal.timeout(5000)
+        });
+        const elapsed = Date.now() - start;
+
+        if (label !== 'custom') {
+          const el = document.getElementById(label);
+          el.textContent = `✓ ${elapsed}мс`;
+          el.style.color = '#22c55e';
+        }
+        return true;
+      } catch (e) {
+        if (label !== 'custom') {
+          const el = document.getElementById(label);
+          el.textContent = '✗ Недоступен';
+          el.style.color = '#ef4444';
+        }
+        return false;
+      }
+    }
+
+    document.getElementById('test-servers-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('test-servers-btn');
+      btn.textContent = '⏳ Проверка...';
+      btn.disabled = true;
+
+      // Reset
+      servers.forEach(s => {
+        document.getElementById(s.el).textContent = '...';
+        document.getElementById(s.el).style.color = '#64748b';
+      });
+
+      for (const s of servers) {
+        await testServer(s.url, s.el);
+      }
+
+      // Test custom if set
+      if (customServer) {
+        await testServer(customServer, 'custom');
+      }
+
+      btn.textContent = '🧪 Проверить серверы';
+      btn.disabled = false;
+    });
+
+    // Override translate to use custom server first
+    const originalTranslate = translate;
+    translate = async function(text) {
+      if (customServer) {
+        const src = settings.sourceLang.split('-')[0];
+        const tgt = settings.targetLang.split('-')[0];
+        if (src === tgt) return text;
+
+        try {
+          const res = await fetch(customServer, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ q: text, source: src, target: tgt }),
+            signal: AbortSignal.timeout(3000)
+          });
+          const data = await res.json();
+          if (data.translatedText && data.translatedText !== text) {
+            return data.translatedText;
+          }
+        } catch (e) {
+          // Fall through to default servers
+        }
+      }
+
+      return originalTranslate(text);
+    };
+
+    function updatePreview(original, translated, isInterim = false) {
+      const lines = [];
+      if (isInterim) {
+        lines.push(`<div class="preview-line original">${escapeHtml(original)} ...</div>`);
+        lines.push(`<div class="preview-line empty">перевожу...</div>`);
+      } else {
+        lines.push(`<div class="preview-line original">${escapeHtml(original)}</div>`);
+        lines.push(`<div class="preview-line translated">${escapeHtml(translated)}</div>`);
+      }
+      preview.innerHTML = lines.join('');
+    }
+
+    function escapeHtml(text) {
+      const d = document.createElement('div');
+      d.textContent = text;
+      return d.innerHTML;
+    }
+
+    function startRecognition() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) {
+        errorArea.innerHTML = '<div class="error-text">Speech Recognition не поддерживается. Используйте Chrome.</div>';
+        statusText.textContent = 'Не поддерживается';
+        statusDot.classList.add('error');
+        return;
+      }
+
+      errorArea.innerHTML = '';
+      recognition = new SR();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = settings.sourceLang;
+
+      recognition.onresult = async (e) => {
+        let interim = '';
+        let final = '';
+
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const t = e.results[i][0].transcript;
+          if (e.results[i].isFinal) final += t;
+          else interim += t;
+        }
+
+        if (interim) {
+          updatePreview(interim, '', true);
+          sendToOverlay({ original: interim, translated: '', isInterim: true });
+        }
+
+        if (final) {
+          const trimmed = final.trim();
+          if (!trimmed) return;
+          translate(trimmed).then((translated) => {
+            updatePreview(trimmed, translated);
+            sendToOverlay({ original: trimmed, translated: translated.trim(), isInterim: false });
+          });
+        }
+      };
+
+      recognition.onerror = (e) => {
+        if (e.error === 'not-allowed') {
+          errorArea.innerHTML = '<div class="error-text">Нет доступа к микрофону. Разрешите в браузере.</div>';
+        } else if (e.error !== 'no-speech') {
+          errorArea.innerHTML = `<div class="error-text">Ошибка: ${e.error}</div>`;
+        }
+      };
+
+      recognition.onend = () => {
+        if (isListening) { try { recognition.start(); } catch(e) {} }
+      };
+
+      try {
+        recognition.start();
+        isListening = true;
+        statusText.textContent = 'Распознавание активно';
+        statusDot.classList.add('active');
+        startBtn.textContent = '⏹ Остановить';
+        startBtn.className = 'btn stop';
+      } catch (e) {
+        errorArea.innerHTML = '<div class="error-text">Не удалось запустить распознавание.</div>';
+      }
+    }
+
+    function stopRecognition() {
+      if (recognition) {
+        recognition.onend = null;
+        recognition.stop();
+        recognition = null;
+      }
+      isListening = false;
+      statusText.textContent = 'Остановлено';
+      statusDot.classList.remove('active');
+      startBtn.textContent = '▶ Запустить';
+      startBtn.className = 'btn start';
+      preview.innerHTML = '<div class="preview-line empty">Титры появятся здесь...</div>';
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (isListening) stopRecognition();
+      else startRecognition();
+    });
+
+    // Check support
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      errorArea.innerHTML = '<div class="error-text">Используйте Chrome или Edge.</div>';
+    }
+  </script>
+</body>
+</html>
